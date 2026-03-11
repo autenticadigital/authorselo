@@ -1,0 +1,135 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* AutorSelo Color Palette */
+  --ink: #1a1208;
+  --paper: #faf7f2;
+  --paper2: #f3ede3;
+  --paper3: #ebe3d5;
+  --gold: #b8860b;
+  --gold2: #d4a017;
+  --gold-light: #f5e6c0;
+  --rust: #8b3a0f;
+  --sage: #4a6741;
+  --muted-color: #7a6e5f;
+  --border-color: #d5c9b8;
+  --shadow-color: rgba(26, 18, 8, 0.12);
+  --google: #4285F4;
+  --pix: #32BCAD;
+  --danger: #dc2626;
+  --success: #16a34a;
+
+  /* Shadcn variables mapped */
+  --background: #faf7f2;
+  --foreground: #1a1208;
+  --card: #ffffff;
+  --card-foreground: #1a1208;
+  --popover: #ffffff;
+  --popover-foreground: #1a1208;
+  --primary: #1a1208;
+  --primary-foreground: #d4a017;
+  --secondary: #f3ede3;
+  --secondary-foreground: #1a1208;
+  --muted: #f3ede3;
+  --muted-foreground: #7a6e5f;
+  --accent: #f5e6c0;
+  --accent-foreground: #b8860b;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #d5c9b8;
+  --input: #d5c9b8;
+  --ring: #b8860b;
+  --chart-1: #b8860b;
+  --chart-2: #4a6741;
+  --chart-3: #8b3a0f;
+  --chart-4: #32BCAD;
+  --chart-5: #d4a017;
+  --radius: 0.625rem;
+  --sidebar: #faf7f2;
+  --sidebar-foreground: #1a1208;
+  --sidebar-primary: #1a1208;
+  --sidebar-primary-foreground: #d4a017;
+  --sidebar-accent: #f3ede3;
+  --sidebar-accent-foreground: #1a1208;
+  --sidebar-border: #d5c9b8;
+  --sidebar-ring: #b8860b;
+}
+
+@theme inline {
+  --font-sans: var(--font-dm-sans), 'DM Sans', sans-serif;
+  --font-serif: var(--font-playfair), 'Playfair Display', serif;
+  --font-mono: var(--font-dm-mono), 'DM Mono', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  /* Custom colors */
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-paper2: var(--paper2);
+  --color-paper3: var(--paper3);
+  --color-gold: var(--gold);
+  --color-gold2: var(--gold2);
+  --color-gold-light: var(--gold-light);
+  --color-rust: var(--rust);
+  --color-sage: var(--sage);
+  --color-pix: var(--pix);
+  --color-google: var(--google);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(184,134,11,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(139,58,15,0.05) 0%, transparent 50%);
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+}
