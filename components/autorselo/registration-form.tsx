@@ -4,6 +4,8 @@ import { useFirebase } from '@/components/firebase-provider'
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { Upload, Key, FileText, Music, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 
 const ICONS: Record<string, string> = {
   mp3: '🎵', wav: '🎶', flac: '🎼', ogg: '🎙️', 
@@ -446,6 +448,27 @@ export function RegistrationForm() {
     URL.revokeObjectURL(url)
   }
 
+  const downloadPdf = async () => {
+    if (!result) return
+    
+    // Mostra temporariamente a div de print
+    const printElement = document.getElementById('print-certificate')
+    if (printElement) {
+      printElement.style.display = 'block'
+      const canvas = await html2canvas(printElement, { scale: 2, useCORS: true })
+      printElement.style.display = 'none'
+      
+      const imgData = canvas.toDataURL('image/png')
+      // A4 Landscape is 297x210
+      const pdf = new jsPDF('landscape', 'mm', 'a4')
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save(`AutorSelo-${result.titulo.replace(/[^a-zA-Z0-9À-ú\s]/g, '').replace(/\s+/g, '-')}-certificado.pdf`)
+    }
+  }
+
   const resetAll = () => {
     setFile(null)
     setKeyPair(null)
@@ -844,6 +867,12 @@ export function RegistrationForm() {
               ⬇ Baixar .json
             </button>
             <button
+              onClick={downloadPdf}
+              className="inline-flex items-center gap-2 bg-pix text-white rounded-lg px-4 py-2.5 text-[13px] font-semibold transition-all hover:bg-[#27a898] hover:shadow-md"
+            >
+              📄 Baixar PDF Estilizado
+            </button>
+            <button
               onClick={resetAll}
               className="inline-flex items-center gap-2 bg-transparent border border-border rounded-lg px-4 py-2.5 text-[13px] font-semibold transition-all hover:border-gold hover:text-gold"
             >
@@ -857,6 +886,41 @@ export function RegistrationForm() {
               {buildCertText(result)}
             </pre>
           )}
+
+          {/* Hidden PDF Canvas Template */}
+          <div id="print-certificate" className="absolute top-[-10000px] left-[-10000px] bg-background w-[1122px] h-[793px] text-ink font-sans overflow-hidden z-[-1] p-16 border-[12px] border-double border-gold/40 shadow-inner" style={{ display: 'none' }}>
+            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at center, #b8860b 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+            
+            <div className="relative z-10 flex flex-col h-full items-center justify-center text-center">
+              <div className="text-gold text-7xl mb-4">🏆</div>
+              <h1 className="font-serif text-6xl font-bold uppercase tracking-widest text-ink mb-2">Certificado de Autoria</h1>
+              <h2 className="text-2xl text-rust uppercase tracking-wider mb-12 font-semibold">Registro Digital - AutorSelo</h2>
+              
+              <div className="text-2xl text-muted-foreground mb-4">Certificamos que a obra intelectual e/ou artística descrita como:</div>
+              <div className="text-5xl font-serif font-bold text-ink mb-6 italic">&quot;{result.titulo}&quot;</div>
+              
+              <div className="text-xl text-muted-foreground mt-4 mb-2">Foi registrada oficialmente sob a tutela legal de:</div>
+              <div className="text-4xl font-bold text-sage mb-12">{result.autor}</div>
+              
+              <div className="grid grid-cols-2 gap-x-16 gap-y-4 text-left w-full max-w-4xl bg-paper2/50 p-8 rounded-xl border border-border/50">
+                <div><span className="font-bold text-muted-foreground uppercase text-sm">Data do Registro:</span><br/><span className="text-xl font-mono">{new Date(result.timestamp).toLocaleString('pt-BR')}</span></div>
+                <div><span className="font-bold text-muted-foreground uppercase text-sm">E-mail Titular:</span><br/><span className="text-xl font-mono">{result.email}</span></div>
+                <div><span className="font-bold text-muted-foreground uppercase text-sm">Hash SHA-256 da Obra:</span><br/><span className="text-sm font-mono truncate block text-emerald-600">{result.hash_sha256}</span></div>
+                <div><span className="font-bold text-muted-foreground uppercase text-sm">ID Único (Blockchain/Assinatura):</span><br/><span className="text-sm font-mono truncate block text-blue-600">{result.assinatura_base64.slice(0, 32)}...</span></div>
+              </div>
+              
+              <div className="mt-auto pt-8 border-t border-border w-full flex justify-between items-end px-12">
+                <div className="text-left">
+                  <div className="text-sm font-bold text-ink">AUTORSELO - Registro Descentralizado</div>
+                  <div className="text-xs text-muted-foreground">https://autorselo.netlify.app</div>
+                </div>
+                <div className="text-right">
+                  <div className="w-32 h-32 opacity-40 mx-auto bg-contain bg-no-repeat bg-center" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 24 24\' fill=\'none\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\' fill=\'%23b8860b\'/%3E%3C/svg%3E")' }}></div>
+                  <div className="text-[10px] uppercase tracking-widest text-gold mt-2 font-bold">Verificação Criptográfica Ativa</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
