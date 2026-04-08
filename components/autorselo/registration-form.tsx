@@ -41,7 +41,7 @@ interface RegistrationResult {
 }
 
 export function RegistrationForm() {
-  const { user, credits, hasCredits, consumeCredit, getToken } = useFirebase()
+  const { user, credits, hasCredits, consumeCredit, getToken, rollbackCredit, loginGoogle } = useFirebase()
   const [file, setFile] = useState<File | null>(null)
   const [keyPair, setKeyPair] = useState<CryptoKeyPair | null>(null)
   const [result, setResult] = useState<RegistrationResult | null>(null)
@@ -396,10 +396,21 @@ export function RegistrationForm() {
         setProgressLabel('Tudo salvo no Google Drive! ✓')
         setDriveStatus({ status: 'ok', message: 'Salvo na pasta AutorSelo do seu Drive' })
       } catch (driveErr) {
-        addLog('Erro ao salvar no Drive: ' + (driveErr instanceof Error ? driveErr.message : 'Erro'), 'err')
+        let msg = driveErr instanceof Error ? driveErr.message : 'Erro'
+        if (msg.includes('Invalid Credentials') || msg.includes('401')) {
+          msg = 'Sessão do Google Drive expirada. Faça logout e login novamente.'
+        }
+        addLog('Erro ao salvar no Drive: ' + msg, 'err')
+        addLog('Reembolsando 1 crédito da conta...', 'inf')
+        try {
+          await rollbackCredit()
+          addLog('Crédito devolvido ✓', 'ok')
+        } catch (rbErr) {
+          addLog('Aviso: Falha ao devolver crédito. Contate o suporte.', 'err')
+        }
         setProgress(100)
         setProgressLabel('Certificado gerado (erro ao salvar no Drive).')
-        setDriveStatus({ status: 'error', message: driveErr instanceof Error ? driveErr.message : 'Erro desconhecido' })
+        setDriveStatus({ status: 'error', message: msg })
       }
 
       document.getElementById('resultCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' })

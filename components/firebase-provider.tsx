@@ -23,12 +23,12 @@ import {
 } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDSIoVOP7YZTb--JcDKuRuMgHRO0AwJUC4",
-  authDomain: "certificacao-digitl.firebaseapp.com",
-  projectId: "certificacao-digitl",
-  storageBucket: "certificacao-digitl.firebasestorage.app",
-  messagingSenderId: "1024534701658",
-  appId: "1:1024534701658:web:49e047803409f94efa5a63"
+  apiKey: "AIzaSyBWa63KmESFe0va_AGfzk4qn4Jdsn8dF_E",
+  authDomain: "autorselo.firebaseapp.com",
+  projectId: "autorselo",
+  storageBucket: "autorselo.firebasestorage.app",
+  messagingSenderId: "674486949488",
+  appId: "1:674486949488:web:e36574effe6688c502c6b5"
 }
 
 interface FirebaseContextType {
@@ -40,8 +40,10 @@ interface FirebaseContextType {
   logoutGoogle: () => Promise<void>
   hasCredits: () => boolean
   consumeCredit: () => Promise<void>
+  rollbackCredit: () => Promise<void>
   getToken: () => string | null
   db: Firestore | null
+  isAdmin: boolean
 }
 
 const FirebaseContext = createContext<FirebaseContextType | null>(null)
@@ -60,6 +62,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
   const [db, setDb] = useState<Firestore | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [credits, setCredits] = useState(0)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [driveToken, setDriveToken] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -78,6 +81,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
         await loadUserData(currentUser, firebaseDb)
       } else {
         setCredits(0)
+        setIsAdmin(false)
         setDriveToken(null)
       }
       setLoading(false)
@@ -93,6 +97,9 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
       if (snap.exists()) {
         const data = snap.data()
         setCredits(data.credits || 0)
+        const ADMIN_EMAILS = ['autenticarq.digital@gmail.com', 'paulooliveiracompositor@gmail.com', 'almadafilipe97@gmail.com']
+        const hasAdminEmail = currentUser.email ? ADMIN_EMAILS.includes(currentUser.email) : false
+        setIsAdmin(data.isAdmin === true || data.role === 'admin' || hasAdminEmail)
       } else {
         await setDoc(ref, {
           uid: currentUser.uid,
@@ -101,12 +108,19 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
           photoURL: currentUser.photoURL,
           credits: 0,
           createdAt: serverTimestamp(),
-          totalRegistrations: 0
+          totalRegistrations: 0,
+          isAdmin: currentUser.email ? ['autenticarq.digital@gmail.com', 'paulooliveiracompositor@gmail.com', 'almadafilipe97@gmail.com'].includes(currentUser.email) : false
         })
         setCredits(0)
+        setIsAdmin(currentUser.email ? ['autenticarq.digital@gmail.com', 'paulooliveiracompositor@gmail.com', 'almadafilipe97@gmail.com'].includes(currentUser.email) : false)
       }
     } catch (e) {
       console.error('Erro ao carregar dados do usuário:', e)
+      // Fallback: Se Firestore bloquear (ex: regras de segurança restritas), garante o acesso caso o email seja dos administradores.
+      const ADMIN_EMAILS = ['autenticarq.digital@gmail.com', 'paulooliveiracompositor@gmail.com', 'almadafilipe97@gmail.com']
+      if (currentUser.email && ADMIN_EMAILS.includes(currentUser.email)) {
+        setIsAdmin(true)
+      }
     }
   }
 
@@ -133,6 +147,7 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
     setDriveToken(null)
     setUser(null)
     setCredits(0)
+    setIsAdmin(false)
   }
 
   const hasCredits = () => credits > 0
@@ -151,6 +166,18 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
     setCredits(prev => prev - 1)
   }
 
+  const rollbackCredit = async () => {
+    if (!user) return
+    if (!db) return
+    
+    const ref = doc(db, 'users', user.uid)
+    await updateDoc(ref, {
+      credits: increment(1),
+      totalRegistrations: increment(-1)
+    })
+    setCredits(prev => prev + 1)
+  }
+
   const getToken = () => driveToken
 
   return (
@@ -163,8 +190,10 @@ export function FirebaseProvider({ children }: { children: ReactNode }) {
       logoutGoogle,
       hasCredits,
       consumeCredit,
+      rollbackCredit,
       getToken,
-      db
+      db,
+      isAdmin
     }}>
       {children}
     </FirebaseContext.Provider>

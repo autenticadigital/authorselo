@@ -16,7 +16,7 @@ function GoogleIcon() {
 }
 
 export function AuthBar() {
-  const { user, credits, loginGoogle, logoutGoogle, loading } = useFirebase()
+  const { user, credits, isAdmin, loginGoogle, logoutGoogle, loading } = useFirebase()
 
   if (loading) {
     return (
@@ -84,6 +84,14 @@ export function AuthBar() {
           >
             💚 Adicionar crédito
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-1.5 bg-ink text-gold2 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all hover:bg-[#2d2010] shadow-sm whitespace-nowrap"
+            >
+              🛡️ Painel Admin
+            </Link>
+          )}
         </div>
       )}
 
