@@ -913,8 +913,8 @@ export function RegistrationForm() {
           )}
 
           {/* Hidden PDF Canvas Template */}
-          <div id="print-certificate" className="absolute top-[-10000px] left-[-10000px] bg-background w-[1122px] h-[793px] text-ink font-sans overflow-hidden z-[-1] p-16 border-[12px] border-double border-gold/40 shadow-inner" style={{ display: 'none' }}>
-            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at center, #b8860b 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+          <div id="print-certificate" className="absolute top-[-10000px] left-[-10000px] bg-background w-[1122px] h-[793px] text-ink font-sans overflow-hidden z-[-1] p-16 border-[12px] border-double shadow-inner" style={{ display: 'none', borderColor: 'rgba(184, 134, 11, 0.4)' }}>
+            <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at center, #b8860b 1px, transparent 1px)', backgroundSize: '24px 24px', opacity: 0.1 }}></div>
             
             <div className="relative z-10 flex flex-col h-full items-center justify-center text-center">
               <div className="text-gold text-7xl mb-4">🏆</div>
@@ -927,14 +927,14 @@ export function RegistrationForm() {
               <div className="text-xl text-muted-foreground mt-4 mb-2">Foi registrada oficialmente sob a tutela legal de:</div>
               <div className="text-4xl font-bold text-sage mb-12">{result.autor}</div>
               
-              <div className="grid grid-cols-2 gap-x-16 gap-y-4 text-left w-full max-w-4xl bg-paper2/50 p-8 rounded-xl border border-border/50">
+              <div className="grid grid-cols-2 gap-x-16 gap-y-4 text-left w-full max-w-4xl p-8 rounded-xl border" style={{ backgroundColor: 'rgba(243, 237, 227, 0.5)', borderColor: 'rgba(213, 201, 184, 0.5)' }}>
                 <div><span className="font-bold text-muted-foreground uppercase text-sm">Data do Registro:</span><br/><span className="text-xl font-mono">{new Date(result.timestamp).toLocaleString('pt-BR')}</span></div>
                 <div><span className="font-bold text-muted-foreground uppercase text-sm">E-mail Titular:</span><br/><span className="text-xl font-mono">{result.email}</span></div>
-                <div><span className="font-bold text-muted-foreground uppercase text-sm">Hash SHA-256 da Obra:</span><br/><span className="text-sm font-mono truncate block text-emerald-600">{result.hash_sha256}</span></div>
-                <div><span className="font-bold text-muted-foreground uppercase text-sm">ID Único (Blockchain/Assinatura):</span><br/><span className="text-sm font-mono truncate block text-blue-600">{result.assinatura_base64.slice(0, 32)}...</span></div>
+                <div><span className="font-bold text-muted-foreground uppercase text-sm">Hash SHA-256 da Obra:</span><br/><span className="text-sm font-mono truncate block" style={{ color: '#059669' }}>{result.hash_sha256}</span></div>
+                <div><span className="font-bold text-muted-foreground uppercase text-sm">ID Único (Blockchain/Assinatura):</span><br/><span className="text-sm font-mono truncate block" style={{ color: '#2563eb' }}>{result.assinatura_base64.slice(0, 32)}...</span></div>
               </div>
               
-              <div className="mt-auto pt-8 border-t border-border w-full flex justify-between items-end px-12">
+              <div className="mt-auto pt-8 w-full flex justify-between items-end px-12" style={{ borderTop: '1px solid #d5c9b8' }}>
                 <div className="text-left">
                   <div className="text-sm font-bold text-ink">AUTORSELO - Registro Descentralizado</div>
                   <div className="text-xs text-muted-foreground">https://autorselo.netlify.app</div>
