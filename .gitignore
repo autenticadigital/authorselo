@@ -10,3 +10,13 @@ node_modules/
 .DS_Store
 # Local Netlify folder
 .netlify
+
+# Wrangler and OpenNext
+.wrangler/
+.open-next/
+.dev.vars
+
+# Local Backups
+Meus_Projetos_Zip/
+
+
