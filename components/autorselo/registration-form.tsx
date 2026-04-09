@@ -448,24 +448,49 @@ export function RegistrationForm() {
     URL.revokeObjectURL(url)
   }
 
-  const downloadPdf = async () => {
-    if (!result) return
+  const downloadPdf = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!result) return;
     
-    // Mostra temporariamente a div de print
-    const printElement = document.getElementById('print-certificate')
-    if (printElement) {
-      printElement.style.display = 'block'
-      const canvas = await html2canvas(printElement, { scale: 2, useCORS: true })
-      printElement.style.display = 'none'
+    const printElement = document.getElementById('print-certificate');
+    if (!printElement) {
+      alert("Elemento base do certificado não encontrado!");
+      return;
+    }
+
+    try {
+      // Remover display none e usar opacidade/pointerEvents
+      printElement.style.display = 'block';
+      printElement.style.position = 'fixed'; // Ajuda o html2canvas
+      printElement.style.top = '0';
+      printElement.style.left = '0';
+      printElement.style.zIndex = '-9999';
       
-      const imgData = canvas.toDataURL('image/png')
-      // A4 Landscape is 297x210
-      const pdf = new jsPDF('landscape', 'mm', 'a4')
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+      // Pausa para renderização correta das fontes do DOM e Box Model
+      await new Promise(r => setTimeout(r, 300));
       
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save(`AutorSelo-${result.titulo.replace(/[^a-zA-Z0-9À-ú\s]/g, '').replace(/\s+/g, '-')}-certificado.pdf`)
+      const canvas = await html2canvas(printElement, { 
+        scale: 2, 
+        useCORS: true,
+        backgroundColor: '#fbf9f6',
+        logging: true
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('landscape', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`AutorSelo-${result.titulo.replace(/[^a-zA-Z0-9À-ú\s]/g, '').replace(/\s+/g, '-')}-certificado.pdf`);
+    } catch (err: any) {
+      console.error(err);
+      alert("Erro ao processar as imagens do PDF: " + err?.message);
+    } finally {
+      // Esconder novamente
+      printElement.style.display = 'none';
+      printElement.style.position = 'absolute';
+      printElement.style.top = '-10000px';
     }
   }
 
